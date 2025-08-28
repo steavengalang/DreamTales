@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DreamTales — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg-1:#0f1226; --bg-2:#1b1f3b; --text:#e9ecff; --muted:#b8bdf2; --primary:#7f8dff; --accent:#9ce2ff; --card:#1f2547cc; --radius:22px }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:"Inter", ui-sans-serif, system-ui; color:var(--text);
+      background: radial-gradient(circle at 20% -10%, #2a2f68 0%, var(--bg-1) 40%) fixed,
+                  radial-gradient(circle at 120% 120%, #182046 0%, var(--bg-2) 50%) fixed;}
+    .wrap{max-width:1100px; margin:30px auto; padding:0 20px}
+    h1{margin:0 0 12px}
+    .card{background:linear-gradient(180deg, var(--card), #2a3161aa); border:1px solid #2f3568; border-radius:var(--radius); padding:18px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    input[type="text"]{padding:10px 12px; border-radius:12px; border:1px solid #343a77; background:#171b3b; color:var(--text); outline:none}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:12px; border:1px solid #37409a; background:linear-gradient(180deg, #7886ff, #7f8dff); color:#0c1028; font-weight:700; cursor:pointer; text-decoration:none}
+    .btn-ghost{background:transparent; color:var(--primary); border:1px solid #37409a}
+    table{width:100%; border-collapse:collapse; margin-top:12px}
+    th,td{padding:10px; border-bottom:1px solid #2f3568; font-size:14px}
+    th{text-align:left; color:var(--muted)}
+    .hint{font-size:12px; color:var(--muted)}
+    /* Modal PIN */
+    .modal{position:fixed; inset:0; background:#0b0f26dd; backdrop-filter: blur(6px); display:none; align-items:center; justify-content:center; z-index:10}
+    .modal.show{display:flex}
+    .modal-card{width:min(420px, 92vw); background:linear-gradient(180deg, var(--card), #2a3161aa); border:1px solid #2f3568; border-radius:var(--radius); padding:18px}
+    .row-right{display:flex; justify-content:flex-end; gap:10px}
+    .error{color:#ff9aa2; font-size:12px; margin-top:6px}
+  </style>
+  <script>
+    const CORRECT_PIN = "140724Usp*#";
+    const USERS_KEY = "dreamtales_users";
+    function getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
+    function setUsers(obj){ localStorage.setItem(USERS_KEY, JSON.stringify(obj)); }
+    function libKeyByEmail(email){ return `dreamtales_library_${email||'guest'}`; }
+    function load(){
+      const q = (document.getElementById('q').value||'').toLowerCase();
+      const tbody = document.getElementById('tbody'); tbody.innerHTML='';
+      const users = getUsers();
+      const rows = Object.values(users).filter(u=> (u.email+" "+(u.name||'')).toLowerCase().includes(q));
+      if(rows.length===0){ tbody.innerHTML = `<tr><td colspan="5" class="hint">Belum ada user.</td></tr>`; return; }
+      rows.forEach(u=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${u.name||'-'}</td>
+                        <td>${u.email}</td>
+                        <td><code>${u.passHash}</code> <span class="hint">(${u.algo||'legacy'})</span></td>
+                        <td>${u.createdAt ? new Date(u.createdAt).toLocaleString() : '-'}</td>
+                        <td style="text-align:right">
+                          <button class="btn-ghost" data-act="export" data-email="${u.email}">Export Library</button>
+                          <button class="btn-ghost" data-act="del" data-email="${u.email}">Hapus</button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function exportJSON(email){
+      const lib = localStorage.getItem(libKeyByEmail(email)) || '[]';
+      const blob = new Blob([lib], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = `dreamtales-library-${email}.json`; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function removeUser(email){
+      if(!confirm(`Hapus user ${email}? Data library juga akan dihapus.`)) return;
+      const users = getUsers(); delete users[email]; setUsers(users);
+      localStorage.removeItem(libKeyByEmail(email));
+      load();
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const content = document.getElementById('content');
+      const modal = document.getElementById('pinModal');
+      const pinInput = document.getElementById('pinInput');
+      const pinSubmit = document.getElementById('pinSubmit');
+      const pinErr = document.getElementById('pinErr');
+      function unlock(){ content.style.display='block'; modal.classList.remove('show'); sessionStorage.setItem('dreamtales_admin_ok','1'); }
+      if(sessionStorage.getItem('dreamtales_admin_ok')==='1'){ unlock(); }
+      else { modal.classList.add('show'); content.style.display='none'; }
+      pinSubmit.addEventListener('click', ()=>{
+        if(pinInput.value===CORRECT_PIN){ unlock(); load(); }
+        else { pinErr.textContent='PIN salah'; pinErr.style.display='block'; }
+      });
+      pinInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pinSubmit.click(); });
+      document.getElementById('q').addEventListener('input', ()=>{ load(); refreshStats(); });
+      document.getElementById('refresh').addEventListener('click', ()=>{ load(); refreshStats(); });
+      document.getElementById('exportAll').addEventListener('click', ()=>{
+        const data = localStorage.getItem(USERS_KEY) || '{}';
+        const blob = new Blob([data], {type:'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'dreamtales-users.json'; a.click(); URL.revokeObjectURL(a.href);
+      });
+      document.getElementById('logoutAdmin')?.addEventListener('click', ()=>{ sessionStorage.removeItem('dreamtales_admin_ok'); location.reload(); });
+      document.getElementById('tbody').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button'); if(!btn) return;
+        const email = btn.getAttribute('data-email'); const act = btn.getAttribute('data-act');
+        if(act==='del') removeUser(email);
+        if(act==='export') exportJSON(email);
+      });
+      function refreshStats(){
+        const users = getUsers();
+        const totalUsers = Object.keys(users).length;
+        let totalStories = 0; let totalLibKeys = 0;
+        Object.values(users).forEach(u=>{
+          const key = libKeyByEmail(u.email);
+          try{ const arr = JSON.parse(localStorage.getItem(key) || '[]'); totalStories += arr.length; }catch{}
+          if(localStorage.getItem(key)) totalLibKeys++;
+        });
+        const su = document.getElementById('statUsers'); if(su) su.textContent = totalUsers;
+        const sl = document.getElementById('statLibs'); if(sl) sl.textContent = totalLibKeys;
+        const ss = document.getElementById('statStories'); if(ss) ss.textContent = totalStories;
+      }
+      load(); refreshStats();
+    });
+  </script>
+</head>
+<body>
+  <div class="modal" id="pinModal" aria-hidden="true">
+    <div class="modal-card">
+      <h2 style="margin:0 0 8px">PIN Admin</h2>
+      <p class="hint" style="margin:0 0 10px">Masukkan PIN untuk membuka halaman admin.</p>
+      <input id="pinInput" type="text" placeholder="Masukkan PIN" style="width:100%">
+      <div id="pinErr" class="error" style="display:none"></div>
+      <div class="row-right" style="margin-top:12px">
+        <button id="pinSubmit" class="btn">Buka</button>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" id="content" style="display:none">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h1 style="margin:0">Admin — Users</h1>
+        <div class="row" style="gap:8px">
+          <button id="logoutAdmin" class="btn-ghost">Keluar Admin</button>
+          <a class="btn" href="./">← Kembali</a>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="btn-ghost" style="border-radius:12px; padding:12px 16px">User: <b id="statUsers">0</b></div>
+        <div class="btn-ghost" style="border-radius:12px; padding:12px 16px">Library: <b id="statLibs">0</b></div>
+        <div class="btn-ghost" style="border-radius:12px; padding:12px 16px">Cerita: <b id="statStories">0</b></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <input id="q" type="text" placeholder="cari nama/email" style="min-width:220px">
+        <button id="refresh" class="btn-ghost">Refresh</button>
+        <button id="exportAll" class="btn-ghost">Export Semua User</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Nama</th><th>Email</th><th>Password (hash)</th><th>Dibuat</th><th></th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="hint" style="margin-top:10px">Catatan: ini demo lokal. Jangan gunakan untuk produksi.</div>
+    </div>
+  </div>
+</body>
+</html>
+

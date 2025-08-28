@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DreamTales — Bedtime Story Builder (Full, 1–10 opsi panjang)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* ===== THEME TOKENS (bisa dicustom lewat panel) ===== */
+    --bg-1:#0f1226;
+    --bg-2:#1b1f3b;
+    --card:#1f2547cc;
+    --card-2:#2a3161aa;
+    --text:#e9ecff;
+    --muted:#b8bdf2;
+    --primary:#7f8dff;
+    --accent:#9ce2ff;
+    --success:#5ee6a8;
+    --radius:22px;
+    --shadow-blur:30px;
+    --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    --font-title: "Merriweather", Georgia, serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: var(--font-body);
+    color:var(--text);
+    background:
+      radial-gradient(circle at 20% -10%, #2a2f68 0%, var(--bg-1) 40%) fixed,
+      radial-gradient(circle at 120% 120%, #182046 0%, var(--bg-2) 50%) fixed;
+    background-blend-mode:screen,normal;
+    overflow-x:hidden;
+  }
+
+  .wrap{max-width:1200px; margin:40px auto; padding:0 20px}
+  header{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:22px}
+  .brand{display:flex; align-items:center; gap:10px; letter-spacing:.3px; font-weight:700; font-size:20px}
+  .brand .dot{width:14px; height:14px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); box-shadow:0 0 10px var(--accent)}
+  .right-actions{display:flex; gap:10px; flex-wrap:wrap}
+
+  .pill{display:inline-flex; align-items:center; gap:10px; background: linear-gradient(180deg, #222754, #171b3c); color:var(--muted); border:1px solid #2f3568; border-radius:999px; padding:10px 14px; box-shadow: 0 10px var(--shadow-blur) rgba(0,0,0,.35)}
+  .pill input[type="checkbox"]{accent-color: var(--primary); width:18px; height:18px}
+
+  .hero{background: linear-gradient(180deg, #1a1f44aa, #14193aaa); border:1px solid #2f3568; border-radius:calc(var(--radius) + 6px); padding:28px; box-shadow: 0 10px var(--shadow-blur) rgba(0,0,0,.35); backdrop-filter: blur(8px)}
+  .hero h1{margin:0 0 6px; font-size: clamp(26px, 4vw, 42px); line-height:1.15; font-family:var(--font-title)}
+  .hero p{margin:0; color:var(--muted)}
+
+  .panel{margin-top:20px; display:grid; grid-template-columns: 1.05fr 1.2fr; gap:18px}
+  @media (max-width:1100px){ .panel{ grid-template-columns:1fr } }
+
+  .card{background:linear-gradient(180deg, var(--card), var(--card-2)); border:1px solid #2f3568; border-radius:var(--radius); padding:18px; box-shadow: 0 10px var(--shadow-blur) rgba(0,0,0,.35)}
+  .section-title{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px}
+  .section-title h3{margin:0}
+
+  .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr)}
+  .col-6{grid-column: span 6} .col-4{grid-column: span 4} .col-8{grid-column: span 8} .col-12{grid-column: span 12}
+  @media (max-width:680px){ .col-6,.col-4,.col-8{ grid-column: span 12 } }
+
+  label{display:block; font-size:13px; color:var(--muted); margin-bottom:6px}
+  select,input[type="text"],input[type="password"],input[type="color"]{width:100%; padding:12px 14px; border-radius:14px; border:1px solid #343a77; background:#171b3b; color:var(--text); outline:none}
+  .range{appearance:none; width:100%; height:6px; border-radius:999px; background:#2b2f67; outline:none}
+  .range::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:20px; height:20px; border-radius:50%; background: linear-gradient(135deg,var(--primary),var(--accent)); border:none; box-shadow:0 0 0 6px #7f8dff22; cursor:pointer}
+
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:13px 16px; border-radius:16px; border:1px solid #37409a; background:linear-gradient(180deg, #7886ff, #7f8dff); color:#0c1028; font-weight:700; cursor:pointer; transition: transform .06s ease, filter .2s ease; user-select:none}
+  .btn[disabled]{opacity:.65; cursor:not-allowed; filter:grayscale(.3)}
+  .btn:hover{ transform: translateY(-1px); filter:brightness(1.03) }
+  .btn-ghost{background:transparent; color:var(--primary); border:1px solid #37409a}
+
+  /* Accessibility */
+  .dyslexia body, body.dyslexia{ font-family: OpenDyslexic, var(--font-body); letter-spacing:.4px }
+  body.high-contrast{ --bg-1:#0a0d1f; --bg-2:#0a0d1f; --card:#0f1330; --card-2:#141a3d; --text:#ffffff; --muted:#d6dbff; --primary:#9fb2ff; --accent:#c3f0ff }
+
+  .story{min-height:300px; white-space:pre-wrap; line-height:1.75; font-size:1.06rem; letter-spacing:.2px}
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; margin-top:12px}
+  .hint{font-size:12px; color:var(--muted)}
+  .badge{display:inline-flex; align-items:center; gap:8px; font-size:12px; color:#0f1a35; font-weight:700; background:linear-gradient(180deg, var(--success), #4ed993); padding:6px 10px; border-radius:999px; border:1px solid #86f0bf66}
+  .kdb{border:1px solid #3a418b; padding:4px 9px; border-radius:10px; font-size:12px; color:var(--muted); background:#151a3c}
+
+  .skeleton{position:relative; overflow:hidden; background:#1a2048; border-radius:12px; height:16px}
+  .skeleton::after{content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg, transparent, #ffffff16, transparent); animation: shimmer 1.2s infinite}
+  @keyframes shimmer{ to{ transform: translateX(100%) } }
+
+  .lib-item{padding:10px 12px; border-radius:14px; border:1px solid #343a77; background:#161b3a; display:flex; justify-content:space-between; align-items:center; gap:10px}
+  .lib-item h4{margin:0 0 4px; font-size:14px}
+  .lib-item small{color:var(--muted)}
+  .lib-actions{display:flex; gap:8px}
+  .tag{display:inline-block; padding:4px 8px; border:1px solid #343a77; border-radius:999px; font-size:12px; color:var(--muted); margin-right:6px}
+
+  footer{opacity:.8; margin:24px 0 10px; text-align:center; font-size:12px; color:var(--muted)}
+
+  .stars{position:fixed; inset:0; pointer-events:none; z-index:-1}
+  .stars span{position:absolute; width:2px; height:2px; background:rgba(255,255,255,.9); border-radius:50%; filter:drop-shadow(0 0 6px #b6c3ff); animation: drift linear infinite; opacity:.85}
+  @keyframes drift{ from{ transform:translateY(0) } to{ transform:translateY(-120vh) } }
+
+  /* ==== AUTH MODAL ==== */
+  .modal{position:fixed; inset:0; background:#0b0f26dd; backdrop-filter: blur(6px); display:none; align-items:center; justify-content:center; z-index:10}
+  .modal.show{display:flex}
+  .modal-card{width:min(560px, 92vw); background:linear-gradient(180deg, var(--card), var(--card-2)); border:1px solid #2f3568; border-radius:var(--radius); padding:18px}
+  .tabs{display:flex; gap:8px; margin-bottom:12px}
+  .tab{padding:8px 12px; border-radius:999px; border:1px solid #343a77; color:var(--muted); cursor:pointer; background:#161b3a}
+  .tab.active{background:linear-gradient(180deg, #7886ff, #7f8dff); color:#0c1028; border-color:#37409a; font-weight:700}
+  .error{color:#ff9aa2; font-size:12px; margin-top:6px}
+  .pw-row{display:flex; gap:8px; align-items:center}
+  .pw-row .mini{white-space:nowrap}
+</style>
+</head>
+<body>
+  <link rel="manifest" href="../manifest.json">
+  <div class="stars" id="stars"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand"><span class="dot"></span> DreamTales</div>
+      <div class="right-actions">
+        <div class="pill">
+          <label class="kdb"><input id="ambientToggle" type="checkbox" /> Musik tenang</label>
+          <label class="kdb"><input id="ttsToggle" type="checkbox" /> Baca suara</label>
+        </div>
+        <div class="pill">
+          <label class="kdb"><input id="a11yDys" type="checkbox" /> Dyslexia</label>
+          <label class="kdb"><input id="a11yHC" type="checkbox" /> High Contrast</label>
+        </div>
+        <div class="pill">
+          <select id="model">
+            <option value="llama-3.3-70b-versatile">Llama-3.3-70B (quality)</option>
+            <option value="llama-3.1-8b-instant">Llama-3.1-8B (cepat/irit)</option>
+            <option value="openai/gpt-oss-20b">gpt-oss-20B (alternatif)</option>
+          </select>
+          <span class="badge">Groq</span>
+        </div>
+        <div class="pill" style="gap:8px">
+          <label class="kdb">Profil:
+            <select id="profileSelect"></select>
+          </label>
+          <button id="addProfile" class="btn btn-ghost">➕</button>
+        </div>
+        <div class="pill" style="gap:6px">
+          <span id="userBadge">Guest</span>
+          <button id="authBtn" class="btn btn-ghost">🔑 Login / Register</button>
+          <span class="badge" id="streakBadge" title="Streak harian">🔥 0</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1>Buat Cerita Sebelum Tidur</h1>
+      <p>Custom tema, library, bab lanjutan, dan 1–10 opsi panjang/lanjutan ✨</p>
+
+      <div class="panel">
+        <!-- ==== LEFT: Controls + THEME CUSTOMIZER ==== -->
+        <div class="card">
+          <div class="section-title">
+            <h3>Kontrol Cerita</h3>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 10px">
+            <button class="btn btn-ghost tpl" data-tpl='{"tema":"fantasi menenangkan","nada":"magis & damai"}'>🌙 Tenang</button>
+            <button class="btn btn-ghost tpl" data-tpl='{"tema":"petualangan lembut","nada":"lucu santai"}'>🧭 Petualangan</button>
+            <button class="btn btn-ghost tpl" data-tpl='{"tema":"edukasi moral","nada":"hangat & lembut"}'>🎓 Edukasi</button>
+          </div>
+          <div class="grid">
+            <div class="col-6">
+              <label>Tema</label>
+              <select id="tema">
+                <option value="fantasi menenangkan">Fantasi menenangkan</option>
+                <option value="petualangan lembut">Petualangan lembut</option>
+                <option value="humor ringan">Humor ringan</option>
+                <option value="edukasi moral">Edukasi moral</option>
+                <option value="meditasi pengantar tidur">Meditasi pengantar tidur</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label>Bahasa</label>
+              <select id="bahasa">
+                <option value="id">Indonesia</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div class="col-6">
+              <label>Usia</label>
+              <select id="usia">
+                <option value="anak">Anak (5–10)</option>
+                <option value="remaja">Remaja</option>
+                <option value="dewasa">Dewasa</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label>Nada</label>
+              <select id="nada">
+                <option>hangat & lembut</option>
+                <option>puitis</option>
+                <option>lucu santai</option>
+                <option>magis & damai</option>
+              </select>
+            </div>
+
+            <div class="col-8">
+              <label>Nama karakter (opsional)</label>
+              <input id="nama" type="text" placeholder="mis. Luna / Arya / Kamu" />
+            </div>
+
+            <div class="col-4">
+              <label>Panjang/opsi (<span id="lenLabel">sedang</span>)</label>
+              <input id="length" class="range" type="range" min="1" max="10" step="1" value="4" />
+            </div>
+
+            <div class="col-12" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+              <button id="genBtn" class="btn">✨ Generate</button>
+              <button id="continueBtn" class="btn btn-ghost">➡️ Lanjutkan Bab</button>
+              <button id="choicesBtn" class="btn btn-ghost">🪄 Buat Opsi Lanjutan (1–10)</button>
+              <span class="hint">Tips: <b>Ctrl/⌘ + Enter</b> untuk generate. • <span id="usageInfo">siap</span> • <span id="tokenInfo"></span></span>
+            </div>
+          </div>
+
+          <hr style="border-color:#2f3568; opacity:.3; margin:16px 0">
+
+          <!-- THEME CUSTOMIZER -->
+          <div class="section-title">
+            <h3>Custom Tema</h3>
+            <div>
+              <button id="saveTheme" class="btn btn-ghost">💾 Simpan Tema</button>
+              <button id="resetTheme" class="btn btn-ghost">↺ Reset</button>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="col-6">
+              <label>Primary</label>
+              <input id="cPrimary" type="color" value="#7f8dff"/>
+            </div>
+            <div class="col-6">
+              <label>Accent</label>
+              <input id="cAccent" type="color" value="#9ce2ff"/>
+            </div>
+            <div class="col-6">
+              <label>Background 1</label>
+              <input id="cBg1" type="color" value="#0f1226"/>
+            </div>
+            <div class="col-6">
+              <label>Background 2</label>
+              <input id="cBg2" type="color" value="#1b1f3b"/>
+            </div>
+            <div class="col-6">
+              <label>Radius (<span id="radVal">22</span>px)</label>
+              <input id="radius" class="range" type="range" min="8" max="30" value="22"/>
+            </div>
+            <div class="col-6">
+              <label>Shadow blur (<span id="blurVal">30</span>px)</label>
+              <input id="sBlur" class="range" type="range" min="10" max="60" value="30"/>
+            </div>
+
+            <div class="col-6">
+              <label>Font teks</label>
+              <select id="fontBody">
+                <option value='"Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial'>Inter (default)</option>
+                <option value='"Poppins", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto'>Poppins</option>
+                <option value='system-ui, -apple-system, Segoe UI, Roboto, Arial'>System UI</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label>Font judul</label>
+              <select id="fontTitle">
+                <option value='"Merriweather", Georgia, serif'>Merriweather (default)</option>
+                <option value='"Poppins", ui-sans-serif, system-ui'>Poppins</option>
+                <option value='"Inter", ui-sans-serif, system-ui'>Inter</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label>Preset tersimpan</label>
+              <div style="display:flex; gap:8px; flex-wrap:wrap">
+                <select id="presetSelect"></select>
+                <button id="applyPreset" class="btn btn-ghost">🎨 Apply</button>
+                <button id="deletePreset" class="btn btn-ghost">🗑️ Hapus</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==== RIGHT: Story + Library ==== -->
+        <div class="card">
+          <div class="section-title">
+            <h3>Cerita</h3>
+            <div style="display:flex; gap:8px">
+              <button id="copyBtn" class="btn btn-ghost">📋 Salin</button>
+              <button id="saveBtn" class="btn btn-ghost">💾 .txt</button>
+              <button id="shareBtn" class="btn btn-ghost">🔗 Share</button>
+              <button id="linkBtn" class="btn btn-ghost">🔗 Link</button>
+              <button id="recordBtn" class="btn btn-ghost" title="Rekam audio TTS (beta)">🎙️ Rekam</button>
+              <button id="ttsStop" class="btn btn-ghost" title="Hentikan TTS">⏹️</button>
+            </div>
+          </div>
+          <div id="story" class="story">
+Selamat datang di DreamTales.
+Pilih tema & nada, atur panjang (1–10), lalu klik ‘Generate’.
+Atur visual di panel kiri (warna, font, radius).
+          </div>
+
+          <div class="toolbar">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+              <label class="kdb">
+                Voice:
+                <select id="voiceSelect"></select>
+              </label>
+              <label class="kdb">
+                Speed:
+                <input id="ttsRate" type="range" min="0.7" max="1.2" step="0.05" value="0.95" class="range" style="width:120px">
+              </label>
+            </div>
+            <div class="hint">Groq API aktif</div>
+          </div>
+
+          <hr style="border-color:#2f3568; opacity:.3; margin:16px 0">
+
+          <div class="section-title">
+            <h3>Library</h3>
+            <div style="display:flex; gap:8px; flex-wrap:wrap">
+              <input id="libTitle" type="text" placeholder="judul cerita untuk disimpan" style="min-width:220px">
+              <input id="libTags" type="text" placeholder="tag (pisahkan koma)" style="min-width:160px">
+              <button id="addToLib" class="btn">⭐ Simpan</button>
+              <input id="libSearch" type="text" placeholder="cari judul/tag…" style="min-width:160px">
+              <button id="filterFav" class="btn btn-ghost">★ Favorit</button>
+            </div>
+          </div>
+          <div id="libraryList" class="grid" style="grid-template-columns: 1fr; gap:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>© 2025 DreamTales — UI modern elegan, animasi halus, satu file HTML/CSS/JS.</footer>
+  </div>
+
+  <!-- ==== AUTH MODAL ==== -->
+  <div id="authModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="section-title">
+        <h3>Akun</h3>
+        <button id="authClose" class="btn btn-ghost">✖</button>
+      </div>
+      <div class="tabs">
+        <button id="tabLogin" class="tab active">Login</button>
+        <button id="tabRegister" class="tab">Register</button>
+      </div>
+      <div id="authError" class="error" style="display:none"></div>
+
+      <div id="loginForm">
+        <label>Email</label>
+        <input id="loginEmail" type="text" placeholder="nama@contoh.com">
+        <label>Password</label>
+        <div class="pw-row">
+          <input id="loginPassword" type="password" placeholder="••••••" style="flex:1">
+          <button id="toggleLoginPw" class="btn btn-ghost mini" type="button">👁️</button>
+        </div>
+        <div class="hint">Tekan Enter untuk masuk</div>
+        <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end">
+          <button id="loginSubmit" class="btn">Masuk</button>
+        </div>
+      </div>
+
+      <div id="registerForm" style="display:none">
+        <label>Nama</label>
+        <input id="regName" type="text" placeholder="Nama lengkap">
+        <label>Email</label>
+        <input id="regEmail" type="text" placeholder="nama@contoh.com">
+        <label>Password (min 6)</label>
+        <div class="pw-row">
+          <input id="regPassword" type="password" placeholder="••••••" style="flex:1">
+          <button id="toggleRegPw" class="btn btn-ghost mini" type="button">👁️</button>
+        </div>
+        <label>Konfirmasi Password</label>
+        <div class="pw-row">
+          <input id="regPassword2" type="password" placeholder="••••••" style="flex:1">
+          <button id="toggleRegPw2" class="btn btn-ghost mini" type="button">👁️</button>
+        </div>
+        <div class="hint">Gunakan password yang kuat. Tekan Enter untuk daftar</div>
+        <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end">
+          <button id="registerSubmit" class="btn">Daftar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ====================== CONFIG (JANGAN TARUH KEY ASLI DI PRODUKSI) ====================== */
+/* Untuk testing lokal, gunakan ?key=GROQ_xxx pada URL. */
+const GROQ_API_KEY = ""; // kosongkan untuk menghindari kebocoran rahasia
+const GROQ_URL = "/api/groq";
+
+/* ====================== UI REFS ====================== */
+const storyEl     = document.getElementById("story");
+const usageInfo   = document.getElementById("usageInfo");
+const tokenInfo   = document.getElementById("tokenInfo");
+
+const genBtn      = document.getElementById("genBtn");
+const continueBtn = document.getElementById("continueBtn");
+const choicesBtn  = document.getElementById("choicesBtn");
+const copyBtn     = document.getElementById("copyBtn");
+const saveBtn     = document.getElementById("saveBtn");
+const shareBtn    = document.getElementById("shareBtn");
+const linkBtn     = document.getElementById("linkBtn");
+const recordBtn   = document.getElementById("recordBtn");
+const ttsStopBtn  = document.getElementById("ttsStop");
+const ttsToggle   = document.getElementById("ttsToggle");
+const voiceSelect = document.getElementById("voiceSelect");
+const ttsRate     = document.getElementById("ttsRate");
+const ambientToggle= document.getElementById("ambientToggle");
+const a11yDys = document.getElementById('a11yDys');
+const a11yHC  = document.getElementById('a11yHC');
+const streakBadge = document.getElementById('streakBadge');
+/* Auth */
+const authBtn = document.getElementById("authBtn");
+const userBadge = document.getElementById("userBadge");
+const authModal = document.getElementById("authModal");
+const authClose = document.getElementById("authClose");
+const tabLogin = document.getElementById("tabLogin");
+const tabRegister = document.getElementById("tabRegister");
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+const loginEmail = document.getElementById("loginEmail");
+const loginPassword = document.getElementById("loginPassword");
+const loginSubmit = document.getElementById("loginSubmit");
+const regName = document.getElementById("regName");
+const regEmail = document.getElementById("regEmail");
+const regPassword = document.getElementById("regPassword");
+const regPassword2 = document.getElementById("regPassword2");
+const registerSubmit = document.getElementById("registerSubmit");
+const authError = document.getElementById("authError");
+
+const tema   = document.getElementById("tema");
+const bahasa = document.getElementById("bahasa");
+const usia   = document.getElementById("usia");
+const nada   = document.getElementById("nada");
+const nama   = document.getElementById("nama");
+const length = document.getElementById("length");
+const lenLabel = document.getElementById("lenLabel");
+const modelSelect = document.getElementById("model");
+
+/* Theme controls */
+const cPrimary = document.getElementById("cPrimary");
+const cAccent  = document.getElementById("cAccent");
+const cBg1     = document.getElementById("cBg1");
+const cBg2     = document.getElementById("cBg2");
+const radius   = document.getElementById("radius");
+const sBlur    = document.getElementById("sBlur");
+const radVal   = document.getElementById("radVal");
+const blurVal  = document.getElementById("blurVal");
+const fontBody = document.getElementById("fontBody");
+const fontTitle= document.getElementById("fontTitle");
+const saveThemeBtn = document.getElementById("saveTheme");
+const resetThemeBtn= document.getElementById("resetTheme");
+const presetSelect = document.getElementById("presetSelect");
+const applyPreset  = document.getElementById("applyPreset");
+const deletePreset = document.getElementById("deletePreset");
+
+/* Library */
+const libList  = document.getElementById("libraryList");
+const libTitle = document.getElementById("libTitle");
+const libSearch= document.getElementById("libSearch");
+const libTags  = document.getElementById("libTags");
+const filterFav= document.getElementById("filterFav");
+/* Profiles */
+const profileSelect = document.getElementById("profileSelect");
+const addProfileBtn = document.getElementById("addProfile");
+
+/* ====================== AUTH LOGIC (localStorage) ====================== */
+const USERS_KEY = "dreamtales_users"; // {email:{name, email, passHash, algo, createdAt}}
+const SESSION_KEY = "dreamtales_session"; // {email}
+function getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
+function setUsers(obj){ localStorage.setItem(USERS_KEY, JSON.stringify(obj)); }
+function setSession(email){ localStorage.setItem(SESSION_KEY, JSON.stringify({email})); }
+function getSession(){ try{return JSON.parse(localStorage.getItem(SESSION_KEY)||"null");}catch{return null} }
+function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+function hashLegacy(s){ let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0 } return String(h); }
+async function hashSHA256(s){
+  const enc = new TextEncoder().encode(s);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  const bytes = Array.from(new Uint8Array(buf));
+  return bytes.map(b=> b.toString(16).padStart(2,'0')).join('');
+}
+function showAuth(show){ authModal.classList.toggle("show", !!show); authModal.setAttribute("aria-hidden", show?"false":"true"); }
+function setAuthTab(tab){
+  const isLogin = tab==="login"; tabLogin.classList.toggle("active", isLogin); tabRegister.classList.toggle("active", !isLogin);
+  loginForm.style.display = isLogin?"block":"none"; registerForm.style.display = isLogin?"none":"block";
+  authError.style.display = "none"; authError.textContent = "";
+}
+function currentUser(){ const s=getSession(); if(!s) return null; const u=getUsers()[s.email]; return u?u:null }
+function updateUserBadge(){ const u=currentUser(); userBadge.textContent = u? (u.name||u.email) : "Guest"; authBtn.textContent = u? "🚪 Logout" : "🔑 Login / Register"; }
+authBtn.addEventListener("click", ()=>{ const u=currentUser(); if(u){ if(confirm("Logout dari akun?")){ clearSession(); updateUserBadge(); renderLibrary(); } } else { showAuth(true); setAuthTab("login"); } });
+authClose.addEventListener("click", ()=> showAuth(false));
+tabLogin.addEventListener("click", ()=> setAuthTab("login"));
+tabRegister.addEventListener("click", ()=> setAuthTab("register"));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){
+    if(loginForm.style.display!=='none') loginSubmit.click();
+    if(registerForm.style.display!=='none') registerSubmit.click();
+  }
+});
+document.querySelectorAll('.tpl').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    try{
+      const data = JSON.parse(btn.getAttribute('data-tpl'));
+      if(data.tema) tema.value = data.tema;
+      if(data.nada) nada.value = data.nada;
+    }catch{}
+  });
+});
+document.getElementById('toggleLoginPw').addEventListener('click', ()=>{
+  const i = loginPassword; i.type = i.type==='password' ? 'text' : 'password';
+});
+document.getElementById('toggleRegPw').addEventListener('click', ()=>{
+  const i = regPassword; i.type = i.type==='password' ? 'text' : 'password';
+});
+document.getElementById('toggleRegPw2').addEventListener('click', ()=>{
+  const i = regPassword2; i.type = i.type==='password' ? 'text' : 'password';
+});
+loginSubmit.addEventListener("click", async ()=>{
+  const email = (loginEmail.value||"").trim().toLowerCase();
+  const pass  = loginPassword.value||"";
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ authError.textContent = "Email tidak valid"; authError.style.display="block"; return; }
+  if(pass.length<6){ authError.textContent = "Password minimal 6 karakter"; authError.style.display="block"; return; }
+  const users = getUsers(); const u = users[email];
+  if(!u){ authError.textContent = "Email atau password salah"; authError.style.display="block"; return; }
+  let ok=false;
+  if(u.algo==="sha256"){ ok = (u.passHash === await hashSHA256(pass)); }
+  else { ok = (u.passHash === hashLegacy(pass)); if(ok){ // migrate
+      u.passHash = await hashSHA256(pass); u.algo = "sha256"; setUsers(users);
+    }
+  }
+  if(!ok){ authError.textContent = "Email atau password salah"; authError.style.display="block"; return; }
+  setSession(email); showAuth(false); updateUserBadge(); renderLibrary();
+});
+registerSubmit.addEventListener("click", async ()=>{
+  const name = (regName.value||"").trim();
+  const email = (regEmail.value||"").trim().toLowerCase();
+  const pass  = regPassword.value||"";
+  const pass2 = regPassword2.value||"";
+  if(name.length<2){ authError.textContent = "Nama terlalu pendek"; authError.style.display="block"; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ authError.textContent = "Email tidak valid"; authError.style.display="block"; return; }
+  if(pass.length<6){ authError.textContent = "Password minimal 6 karakter"; authError.style.display="block"; return; }
+  if(pass!==pass2){ authError.textContent = "Konfirmasi password tidak cocok"; authError.style.display="block"; return; }
+  const users = getUsers(); if(users[email]){ authError.textContent = "Email sudah terdaftar"; authError.style.display="block"; return; }
+  users[email] = {name, email, passHash: await hashSHA256(pass), algo: "sha256", createdAt: new Date().toISOString()};
+  setUsers(users); setSession(email); showAuth(false); updateUserBadge(); renderLibrary();
+});
+
+
+/* ====================== STARS ====================== */
+function spawnStars(){
+  const c = document.getElementById("stars");
+  for(let i=0;i<80;i++){
+    const s = document.createElement("span");
+    const size = Math.random()*2+1;
+    s.style.width = size+"px";
+    s.style.height = size+"px";
+    s.style.left = Math.random()*100+"%";
+    s.style.bottom = (-10 + Math.random()*110) + "vh";
+    s.style.animationDuration = (30 + Math.random()*40) + "s";
+    s.style.animationDelay = (-Math.random()*40) + "s";
+    c.appendChild(s);
+  }
+}
+spawnStars();
+
+/* ====================== A11Y TOGGLES + STREAK ====================== */
+function applyA11y(){ document.body.classList.toggle('dyslexia', !!a11yDys.checked); document.body.classList.toggle('high-contrast', !!a11yHC.checked); localStorage.setItem('dreamtales_a11y', JSON.stringify({dys:a11yDys.checked, hc:a11yHC.checked})); }
+try{ const a = JSON.parse(localStorage.getItem('dreamtales_a11y')||'{}'); a11yDys.checked=!!a.dys; a11yHC.checked=!!a.hc; }catch{}
+a11yDys.addEventListener('change', applyA11y); a11yHC.addEventListener('change', applyA11y); applyA11y();
+function updateStreak(){
+  const key = 'dreamtales_streak';
+  let s = {count:0, last:""}; try{ s = {...s, ...JSON.parse(localStorage.getItem(key)||'{}')}; }catch{}
+  const today = new Date(); const dstr = today.toISOString().slice(0,10);
+  if(s.last !== dstr){
+    const y = new Date(today); y.setDate(today.getDate()-1); const ystr = y.toISOString().slice(0,10);
+    s.count = (s.last===ystr) ? (s.count+1) : 1; s.last = dstr; localStorage.setItem(key, JSON.stringify(s));
+  }
+  streakBadge.textContent = `🔥 ${s.count||0}`;
+}
+updateStreak();
+
+function typeWriter(node, text, speed=10){
+  node.textContent = "";
+  let i=0;
+  return new Promise(res=>{
+    const id = setInterval(()=>{
+      node.textContent += text[i++] || "";
+      if(i>=text.length){ clearInterval(id); res(); }
+    }, speed);
+  });
+}
+
+/* ====================== LENGTH MAP 1–10 ====================== */
+const lenMap = {
+  "1": {label:"super singkat", maxTokens: 200},
+  "2": {label:"singkat",       maxTokens: 400},
+  "3": {label:"pendek",        maxTokens: 600},
+  "4": {label:"sedang",        maxTokens: 800},
+  "5": {label:"agak panjang",  maxTokens: 1000},
+  "6": {label:"panjang",       maxTokens: 1300},
+  "7": {label:"sangat panjang",maxTokens: 1600},
+  "8": {label:"epik",          maxTokens: 2000},
+  "9": {label:"super epik",    maxTokens: 2500},
+  "10":{label:"maraton",       maxTokens: 3000},
+};
+function updateLen(){ lenLabel.textContent = lenMap[length.value].label }
+length.addEventListener("input", updateLen); updateLen();
+
+/* ====================== AMBIENT ====================== */
+let audioCtx, ambientNode;
+function toggleAmbient(on){
+  if(on && !audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886*b0 + white*0.0555179;
+      b1 = 0.99332*b1 + white*0.0750759;
+      b2 = 0.96900*b2 + white*0.1538520;
+      b3 = 0.86650*b3 + white*0.3104856;
+      b4 = 0.55000*b4 + white*0.5329522;
+      b5 = -0.7616*b5 - white*0.0168980;
+      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white*0.5362) * 0.08;
+      b6 = white * 0.115926;
+    }
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuffer; noise.loop = true;
+    const filter = audioCtx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 600;
+    const gain   = audioCtx.createGain(); gain.gain.value = 0.6;
+    noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+    noise.start(0);
+    ambientNode = {gain};
+  }
+  if(audioCtx && ambientNode){
+    ambientNode.gain.gain.setTargetAtTime(on?0.6:0, audioCtx.currentTime, 0.8);
+  }
+}
+ambientToggle.addEventListener("change", e => toggleAmbient(e.target.checked));
+
+/* ====================== TTS ====================== */
+let voices = [];
+function loadVoices(){
+  voices = window.speechSynthesis.getVoices();
+  voiceSelect.innerHTML = "";
+  voices.forEach((v,i)=>{
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})`;
+    voiceSelect.appendChild(opt);
+  });
+}
+if("speechSynthesis" in window){
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+function speak(text){
+  if(!ttsToggle.checked || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = voices[voiceSelect.value|0];
+  if(v) u.voice = v;
+  u.rate = parseFloat(ttsRate.value||"0.95");
+  u.lang = bahasa.value==="id" ? "id-ID" : "en-US";
+  window.speechSynthesis.speak(u);
+}
+ttsStopBtn.addEventListener("click", ()=> window.speechSynthesis.cancel());
+
+/* ====================== THEME CUSTOMIZER ====================== */
+function applyTheme(t){
+  const r = document.documentElement.style;
+  r.setProperty("--primary", t.primary);
+  r.setProperty("--accent",  t.accent);
+  r.setProperty("--bg-1",    t.bg1);
+  r.setProperty("--bg-2",    t.bg2);
+  r.setProperty("--radius",  t.radius+"px");
+  r.setProperty("--shadow-blur", t.shadow+"px");
+  r.setProperty("--font-body", t.fontBody);
+  r.setProperty("--font-title", t.fontTitle);
+}
+function readThemeFromInputs(){
+  return {
+    primary: cPrimary.value,
+    accent:  cAccent.value,
+    bg1:     cBg1.value,
+    bg2:     cBg2.value,
+    radius:  parseInt(radius.value,10),
+    shadow:  parseInt(sBlur.value,10),
+    fontBody: fontBody.value,
+    fontTitle: fontTitle.value
+  };
+}
+function updateLabels(){ radVal.textContent = radius.value; blurVal.textContent = sBlur.value; }
+[cPrimary,cAccent,cBg1,cBg2,radius,sBlur,fontBody,fontTitle].forEach(el=>{
+  el.addEventListener("input", ()=>{ applyTheme(readThemeFromInputs()); updateLabels(); });
+});
+updateLabels();
+
+/* Presets (localStorage) */
+const PRESET_KEY = "dreamtales_presets";
+function getPresets(){ return JSON.parse(localStorage.getItem(PRESET_KEY) || "{}"); }
+function savePreset(name, theme){
+  const p = getPresets(); p[name] = theme; localStorage.setItem(PRESET_KEY, JSON.stringify(p)); refreshPresetSelect();
+}
+function refreshPresetSelect(){
+  const p = getPresets();
+  presetSelect.innerHTML = "";
+  Object.keys(p).forEach(k=>{
+    const opt = document.createElement("option");
+    opt.value = k; opt.textContent = k;
+    presetSelect.appendChild(opt);
+  });
+}
+saveThemeBtn.addEventListener("click", ()=>{
+  const name = prompt("Nama preset tema:");
+  if(!name) return;
+  savePreset(name, readThemeFromInputs());
+});
+applyPreset.addEventListener("click", ()=>{
+  const p = getPresets()[presetSelect.value];
+  if(!p) return;
+  cPrimary.value = p.primary; cAccent.value=p.accent; cBg1.value=p.bg1; cBg2.value=p.bg2;
+  radius.value=p.radius; sBlur.value=p.shadow; fontBody.value=p.fontBody; fontTitle.value=p.fontTitle;
+  applyTheme(p); updateLabels();
+});
+deletePreset.addEventListener("click", ()=>{
+  const name = presetSelect.value; if(!name) return;
+  const p = getPresets(); delete p[name]; localStorage.setItem(PRESET_KEY, JSON.stringify(p)); refreshPresetSelect();
+});
+resetThemeBtn.addEventListener("click", ()=>{
+  cPrimary.value="#7f8dff"; cAccent.value="#9ce2ff"; cBg1.value="#0f1226"; cBg2.value="#1b1f3b";
+  radius.value=22; sBlur.value=30; fontBody.value='"Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial'; fontTitle.value='"Merriweather", Georgia, serif';
+  applyTheme(readThemeFromInputs()); updateLabels();
+});
+refreshPresetSelect();
+applyTheme(readThemeFromInputs());
+
+/* ====================== LIBRARY (localStorage) ====================== */
+/* ====================== PROFILES PER USER ====================== */
+const PROFILES_KEY = (email)=> `dreamtales_profiles_${email||'guest'}`;
+function getProfiles(){ const u=currentUser(); const key = PROFILES_KEY(u?.email); return JSON.parse(localStorage.getItem(key)||"[]"); }
+function setProfiles(arr){ const u=currentUser(); const key = PROFILES_KEY(u?.email); localStorage.setItem(key, JSON.stringify(arr)); }
+function getActiveProfile(){ const u=currentUser(); const arr = getProfiles(); const idx = parseInt(localStorage.getItem(`dreamtales_active_profile_${u?.email||'guest'}`)||"0",10); return arr[idx] || null; }
+function setActiveProfileIndex(i){ const u=currentUser(); localStorage.setItem(`dreamtales_active_profile_${u?.email||'guest'}`, String(i)); }
+function refreshProfileSelect(){
+  const arr = getProfiles();
+  profileSelect.innerHTML = "";
+  arr.forEach((p,i)=>{ const opt=document.createElement('option'); opt.value=String(i); opt.textContent=`${p.name} (${p.age})`; profileSelect.appendChild(opt); });
+  if(arr.length===0){ const opt=document.createElement('option'); opt.value="-1"; opt.textContent="(Default)"; profileSelect.appendChild(opt); }
+  const idx = parseInt(localStorage.getItem(`dreamtales_active_profile_${currentUser()?.email||'guest'}`)||"0",10);
+  profileSelect.value = String(Math.min(idx, Math.max(arr.length-1,0)));
+}
+addProfileBtn.addEventListener('click', ()=>{
+  const name = prompt('Nama anak/profil:'); if(!name) return;
+  const age = prompt('Usia:');
+  const arr = getProfiles(); arr.push({name, age: age||'-'}); setProfiles(arr); refreshProfileSelect(); setActiveProfileIndex(arr.length-1); renderLibrary();
+});
+profileSelect.addEventListener('change', (e)=>{ setActiveProfileIndex(parseInt(e.target.value,10)||0); renderLibrary(); });
+
+function libKey(){
+  const u=currentUser(); const suffix = u? u.email : "guest";
+  const prof = getActiveProfile(); const profSlug = prof? `_${(prof.name||'prof').toLowerCase().replace(/[^a-z0-9]+/g,'-')}` : "";
+  return `dreamtales_library_${suffix}${profSlug}`;
+}
+function getLib(){ return JSON.parse(localStorage.getItem(libKey()) || "[]"); }
+function setLib(arr){ localStorage.setItem(libKey(), JSON.stringify(arr)); renderLibrary(); }
+function addToLib(title, text, meta={}){
+  const arr = getLib();
+  const tags = (meta.tags||[]);
+  arr.unshift({id:crypto.randomUUID(), title, text, meta:{...meta, tags}, fav:false, date: new Date().toISOString()});
+  setLib(arr);
+}
+let showFavOnly = false;
+function renderLibrary(filter=""){
+  const f = filter.toLowerCase();
+  const arr = getLib().filter(i=> {
+    const inTitle = i.title.toLowerCase().includes(f);
+    const inTags = (i.meta?.tags||[]).join(',').toLowerCase().includes(f);
+    const passFav = showFavOnly ? i.fav : true;
+    return passFav && (inTitle || inTags);
+  });
+  libList.innerHTML = "";
+  if(arr.length===0){
+    const u = currentUser();
+    const who = u? (u.name||u.email) : "Guest";
+    libList.innerHTML = `<div class="hint">Library kosong untuk <b>${who}</b>.</div>`; return;
+  }
+  arr.forEach(item=>{
+    const row = document.createElement("div");
+    row.className = "lib-item";
+    row.innerHTML = `
+      <div>
+        <h4>${item.title}</h4>
+        <small>${new Date(item.date).toLocaleString()} • ${item.meta?.tema || "-"}</small><br>
+        ${(item.meta?.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join('')}
+      </div>
+      <div class="lib-actions">
+        <button class="btn btn-ghost" data-act="fav" data-id="${item.id}">${item.fav?"★":"☆"}</button>
+        <button class="btn btn-ghost" data-act="load" data-id="${item.id}">📖</button>
+        <button class="btn btn-ghost" data-act="download" data-id="${item.id}">💾 .txt</button>
+        <button class="btn btn-ghost" data-act="del" data-id="${item.id}">🗑️</button>
+      </div>
+    `;
+    libList.appendChild(row);
+  });
+}
+libList.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button"); if(!btn) return;
+  const id = btn.dataset.id; const act = btn.dataset.act;
+  const arr = getLib(); const item = arr.find(x=>x.id===id); if(!item) return;
+
+  if(act==="load"){ storyEl.textContent = item.text; libTitle.value = item.title; }
+  if(act==="download"){ downloadTxt(`${item.title}.txt`, item.text); }
+  if(act==="fav"){ item.fav = !item.fav; setLib(arr); }
+  if(act==="del"){ setLib(arr.filter(x=>x.id!==id)); }
+});
+libSearch.addEventListener("input", e=> renderLibrary(e.target.value));
+filterFav.addEventListener("click", ()=>{ showFavOnly = !showFavOnly; filterFav.textContent = showFavOnly ? "★ Favorit (On)" : "★ Favorit"; renderLibrary(libSearch.value||""); });
+renderLibrary();
+
+/* ====================== UTIL ====================== */
+function setLoading(b){
+  genBtn.disabled = b; continueBtn.disabled = b; choicesBtn.disabled = b;
+  genBtn.textContent = b? "⏳ Membuat…" : "✨ Generate";
+}
+function downloadTxt(name, text){
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+copyBtn.addEventListener("click", ()=> navigator.clipboard.writeText(storyEl.textContent || "").then(()=>{
+  copyBtn.textContent = "✅ Disalin"; setTimeout(()=> copyBtn.textContent="📋 Salin", 1200);
+}));
+saveBtn.addEventListener("click", ()=> downloadTxt(`DreamTales-${new Date().toISOString().slice(0,10)}.txt`, storyEl.textContent || ""));
+shareBtn.addEventListener("click", async ()=>{
+  if(navigator.share){
+    try{ await navigator.share({title:"DreamTales Story", text: storyEl.textContent.slice(0,200)+"…"}); }catch{}
+  } else { alert("Share API tidak tersedia di perangkat ini."); }
+});
+linkBtn.addEventListener('click', ()=>{
+  const text = storyEl.textContent||""; if(!text) return alert('Belum ada cerita.');
+  const u = new URL(location.origin + location.pathname.replace(/\/[^/]*$/, '/') + 'viewer.html');
+  u.searchParams.set('t', btoa(unescape(encodeURIComponent(text))));
+  navigator.clipboard.writeText(u.toString()).then(()=>{
+    linkBtn.textContent='✅ Link'; setTimeout(()=> linkBtn.textContent='🔗 Link',1200);
+    window.open(u.toString(), '_blank');
+  });
+});
+
+/* ====================== RECORD TTS (BETA) ====================== */
+let _recorder;
+recordBtn.addEventListener('click', async ()=>{
+  const text = storyEl.textContent||""; if(!text) return alert('Belum ada cerita.');
+  if(!('mediaDevices' in navigator && navigator.mediaDevices.getDisplayMedia)){
+    return alert('Perekaman audio tidak didukung browser ini.');
+  }
+  try{
+    recordBtn.disabled = true; recordBtn.textContent = '⏺️ Merekam…';
+    const stream = await navigator.mediaDevices.getDisplayMedia({audio:true, video:false});
+    const chunks = [];
+    const rec = new MediaRecorder(stream);
+    _recorder = rec;
+    rec.ondataavailable = (e)=>{ if(e.data?.size) chunks.push(e.data); };
+    rec.onstop = ()=>{
+      const blob = new Blob(chunks, {type: chunks[0]?.type || 'audio/webm'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = `DreamTales-Audio-${new Date().toISOString().slice(0,10)}.webm`; a.click(); URL.revokeObjectURL(a.href);
+      recordBtn.disabled = false; recordBtn.textContent = '🎙️ Rekam';
+      try{ stream.getTracks().forEach(t=>t.stop()); }catch{}
+    };
+    rec.start();
+    // Speak with current settings, and auto-stop when finished
+    if(!('speechSynthesis' in window)){
+      alert('TTS tidak tersedia di browser ini.'); rec.stop(); return;
+    }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const v = voices[voiceSelect.value|0]; if(v) u.voice = v;
+    u.rate = parseFloat(ttsRate.value||'0.95');
+    u.lang = bahasa.value==='id' ? 'id-ID' : 'en-US';
+    u.onend = ()=>{ try{ rec.stop(); }catch{} };
+    window.speechSynthesis.speak(u);
+  }catch(err){
+    recordBtn.disabled = false; recordBtn.textContent = '🎙️ Rekam';
+    alert('Gagal mulai rekam. Pastikan izin rekam tab audio disetujui.');
+  }
+});
+
+/* ====================== GROQ ====================== */
+async function groqChat(messages, maxTokens, model){
+  const r = await fetch(GROQ_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", ...(window._GROQ_KEY_OVERRIDE? {"x-api-key": window._GROQ_KEY_OVERRIDE}: {}) },
+    body: JSON.stringify({
+      model,
+      temperature: 0.85,
+      max_tokens: maxTokens,
+      messages
+    })
+  });
+  if(!r.ok){
+    const t = await r.text();
+    throw new Error(`HTTP ${r.status}: ${t}`);
+  }
+  const data = await r.json();
+  usageInfo.textContent = `tokens≈${data.usage?.total_tokens ?? "?"}`;
+  return data.choices?.[0]?.message?.content?.trim() || "";
+}
+
+function buildSystemPrompt(lang, audience){
+  return lang==="id"
+    ? `Kamu adalah penulis cerita pengantar tidur. Tulis cerita sangat menenangkan dan aman untuk ${audience}. Hindari konten menakutkan/keras/politis/eksplisit. Gunakan bahasa Indonesia natural, ritmis, mudah dibaca keras. Bagi paragraf dengan jeda napas nyaman. Akhiri dengan penutup damai.`
+    : `You are a bedtime-story writer. Write a very soothing, safe story for ${audience}. Avoid scary/violent/political/explicit content. Use natural, rhythmic language that's easy to read aloud. Break paragraphs for breathing. End with a tranquil closing.`;
+}
+
+function buildUserPrompt(lang, temaV, nadaV, namaV){
+  const nameLine = namaV ? (lang==="id" ? `Nama tokoh utama: ${namaV}.` : `Main character name: ${namaV}.`) : "";
+  return lang==="id"
+    ? `Tema: ${temaV}. Nada: ${nadaV}. ${nameLine} Buat cerita sebelum tidur dengan imaji hangat, fokus pada ketenangan menjelang tidur.`
+    : `Theme: ${temaV}. Tone: ${nadaV}. ${nameLine} Create a bedtime story with warm imagery, focusing on calmness before sleep.`;
+}
+
+/* ====================== GENERATOR (NEW / CONTINUE / CHOICES 1–10) ====================== */
+async function generateStory(mode="new"){
+  const {label, maxTokens} = lenMap[length.value];
+  const model = modelSelect.value;
+
+  setLoading(true);
+  storyEl.innerHTML = `<div class="skeleton" style="width:92%; height:18px; margin:8px 0"></div>
+                       <div class="skeleton" style="width:86%; height:18px; margin:8px 0"></div>
+                       <div class="skeleton" style="width:70%; height:18px; margin:8px 0"></div>`;
+
+  try{
+    let messages = [];
+    if(mode==="new"){
+      messages = [
+        {role:"system", content: buildSystemPrompt(bahasa.value, usia.value)},
+        {role:"user",   content: buildUserPrompt(bahasa.value, tema.value, nada.value, nama.value.trim())}
+      ];
+    } else if(mode==="continue"){
+      messages = [
+        {role:"system", content: buildSystemPrompt(bahasa.value, usia.value)},
+        {role:"user",   content:
+`${bahasa.value==="id"?"Lanjutkan bab selanjutnya dari cerita pengantar tidur di bawah ini dengan suasana tetap lembut dan menenangkan. Hindari konflik berat.":"Continue the next chapter of the bedtime story below with a calm, soothing tone. Avoid heavy conflict."}
+
+${storyEl.textContent}` }
+      ];
+    } else if(mode==="choices"){
+      const count = parseInt(length.value,10); // 1–10 opsi
+      messages = [
+        {role:"system", content: buildSystemPrompt(bahasa.value, usia.value)},
+        {role:"user",   content:
+`${bahasa.value==="id"
+  ? `Buat ${count} opsi kelanjutan singkat (1–2 kalimat per opsi) untuk cerita berikut. Gunakan bullet list, tetap lembut dan menenangkan.`
+  : `Create ${count} short continuation options (1–2 sentences each) for the following story. Use a bullet list with a calm, soothing tone.`}
+
+${storyEl.textContent}` }
+      ];
+    }
+
+    const text = await groqChat(messages, maxTokens, model);
+    tokenInfo.textContent = `panjang=${label}`;
+    await typeWriter(storyEl, text, 9);
+    speak(text);
+
+  }catch(e){
+    storyEl.textContent = "Gagal membuat cerita.\n"+e.message;
+    usageInfo.textContent = "error";
+  }finally{
+    setLoading(false);
+  }
+}
+
+/* Events */
+genBtn.addEventListener("click", ()=> generateStory("new"));
+continueBtn.addEventListener("click", ()=> generateStory("continue"));
+choicesBtn.addEventListener("click",  ()=> generateStory("choices"));
+document.addEventListener("keydown", e=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="enter") generateStory("new");
+});
+
+/* ====================== LIBRARY BTN ====================== */
+document.getElementById("addToLib").addEventListener("click", ()=>{
+  const title = (libTitle.value || "Cerita tanpa judul").trim();
+  const text  = storyEl.textContent || "";
+  if(!text) return alert("Belum ada cerita.");
+  const tags = (libTags.value||"").split(",").map(s=>s.trim()).filter(Boolean);
+  addToLib(title, text, {tema: tema.value, nada: nada.value, usia: usia.value, bahasa: bahasa.value, tags});
+});
+
+/* ====================== OPTIONAL: KEY VIA URL ====================== */
+/* Bisa akses seperti ?key=GROQ_xxx untuk testing lokal (JANGAN pakai di produksi) */
+try{
+  const u = new URL(location.href);
+  const k = u.searchParams.get("key");
+  if(k){ console.warn("Key di URL hanya untuk testing lokal."); window._GROQ_KEY_OVERRIDE = k; }
+}catch{}
+
+/* ====================== INIT ====================== */
+function refreshVoices(){ if("speechSynthesis" in window) { window.speechSynthesis.getVoices(); } }
+setTimeout(refreshVoices, 200);
+</script>
+</body>
+</html>
